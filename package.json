@@ -1,0 +1,31 @@
+{
+  "name": "bongkarjudol",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "BongkarJudol — Bongkar Peluang. Pahami Risikonya. Aplikasi edukasi interaktif tentang probabilitas, RTP, house edge, dan variansi.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test src/**/*.test.ts",
+    "lint": "tsc --noEmit",
+    "montecarlo": "node --experimental-strip-types src/engine/monteCarlo.ts"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.1.1",
+    "chart.js": "^4.6.1",
+    "lucide-react": "^0.546.0",
+    "react": "^19.0.1",
+    "react-dom": "^19.0.1",
+    "vite": "^8.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
+  }
+}

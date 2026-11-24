@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
+coverage/
+
+# Local data / runtime artifacts
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# Vercel
+.vercel/
+
+# Environment
+.env*
+!.env.example
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
