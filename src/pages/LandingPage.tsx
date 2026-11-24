@@ -122,6 +122,33 @@ const SYMBOL_PREVIEW: Array<{
   },
 ];
 
+const CATEGORY_SUMMARY: Record<
+  'zonk' | 'reward' | 'special',
+  { label: string; share: string; cards: string; detail: string }
+> = {
+  zonk: {
+    label: 'Zonk (Kosong)',
+    share: '42%',
+    cards: '42 dari 100 kartu',
+    detail:
+      'Total 42 kartu bernilai 0 koin: Daun 21 kartu + Bulan 21 kartu. Dua gambar ini sengaja dibuat paling banyak supaya kotak layar cepat buntu dan gambar hadiah sulit terkumpul 8 buah. Kalau yang muncul mayoritas Daun & Bulan, putaran itu tidak membayar apa pun.',
+  },
+  reward: {
+    label: 'Gambar Hadiah',
+    share: '48%',
+    cards: '48 dari 100 kartu',
+    detail:
+      'Total 48 kartu berhadiah: Cherry 15 + Bell 13 + Gem 11 + Crown 9. Semua gambar ini baru membayar jika terkumpul minimal 8 gambar sama di layar, dan sebagian besar kombinasi 8–9 gambar masih membayar di bawah taruhan. Hanya kombinasi langka yang benar-benar untung.',
+  },
+  special: {
+    label: 'Kartu Spesial',
+    share: '10%',
+    cards: '10 dari 100 kartu',
+    detail:
+      'Total hanya 10 kartu spesial: Wild 5 + Pengali 3 + Bonus 2. Wild cuma menggantikan 1 jenis gambar, Pengali dijumlahkan (bukan dikali silang), dan Bonus butuh minimal 3 Bintang sekaligus (sekitar 1 kali tiap 45 putaran). Jatahnya sengaja dibuat mini agar jarang menolong.',
+  },
+};
+
 export function LandingPage({
   onNavigate,
   onStartLearningFlow,
@@ -130,6 +157,7 @@ export function LandingPage({
   busy,
 }: LandingPageProps) {
   const [activeSymbol, setActiveSymbol] = useState<SlotSymbol>('LEAF');
+  const [hoveredSegment, setHoveredSegment] = useState<'zonk' | 'reward' | 'special' | null>(null);
   const mc = algoSpec?.monteCarloReport;
   const rtp = mc ? mc.estimatedRtpPercent : 75.21;
   const edge = mc ? mc.estimatedHouseEdgePercent : 24.79;
@@ -139,6 +167,12 @@ export function LandingPage({
   const netLoss = mc ? mc.netLossFrequencyPercent : 80.3;
   const selectedItem =
     SYMBOL_PREVIEW.find((item) => item.symbol === activeSymbol) ?? SYMBOL_PREVIEW[0];
+
+  const isSegmentHighlighted = (category: 'zonk' | 'reward' | 'special') =>
+    hoveredSegment ? hoveredSegment === category : selectedItem.category === category;
+
+  const isTileHighlighted = (item: (typeof SYMBOL_PREVIEW)[number]) =>
+    hoveredSegment ? hoveredSegment === item.category : activeSymbol === item.symbol;
 
   return (
     <div className="space-y-0">
@@ -348,49 +382,60 @@ export function LandingPage({
             {/* Interactive Proportion Stacked Bar */}
             <div className="space-y-2">
               <div
-                className="h-9 w-full rounded-lg overflow-hidden flex border border-slate-300 text-xs font-mono font-bold"
+                className="h-9 w-full rounded-lg overflow-hidden flex border border-slate-300 text-[11px] sm:text-xs font-mono font-bold"
                 role="group"
                 aria-label="Proporsi 100 kartu mesin"
               >
                 <button
                   type="button"
-                  onMouseEnter={() => setActiveSymbol('LEAF')}
-                  onFocus={() => setActiveSymbol('LEAF')}
+                  onMouseEnter={() => setHoveredSegment('zonk')}
+                  onFocus={() => setHoveredSegment('zonk')}
+                  onMouseLeave={() => setHoveredSegment(null)}
+                  onBlur={() => setHoveredSegment(null)}
                   onClick={() => setActiveSymbol('LEAF')}
-                  style={{ width: '42%' }}
-                  className={`bg-slate-700 hover:bg-slate-800 text-white flex items-center justify-center px-2 truncate transition-opacity duration-150 cursor-pointer ${
-                    selectedItem.category === 'zonk' ? 'opacity-100' : 'opacity-70 hover:opacity-95'
+                  style={{ width: '42%', boxSizing: 'border-box', minWidth: 0 }}
+                  className={`bg-slate-700 text-white flex items-center justify-center gap-1 px-1 sm:px-2 h-full text-[11px] sm:text-xs font-mono font-bold transition-opacity duration-150 cursor-pointer ${
+                    isSegmentHighlighted('zonk') ? 'opacity-100' : 'opacity-70 hover:opacity-95'
                   }`}
                 >
-                  42% Zonk (Daun &amp; Bulan)
+                  <span className="sm:hidden truncate">42% Zonk</span>
+                  <span className="hidden sm:inline truncate">42% Zonk (Daun &amp; Bulan)</span>
                 </button>
                 <button
                   type="button"
-                  onMouseEnter={() => setActiveSymbol('CHERRY')}
-                  onFocus={() => setActiveSymbol('CHERRY')}
+                  onMouseEnter={() => setHoveredSegment('reward')}
+                  onFocus={() => setHoveredSegment('reward')}
+                  onMouseLeave={() => setHoveredSegment(null)}
+                  onBlur={() => setHoveredSegment(null)}
                   onClick={() => setActiveSymbol('CHERRY')}
-                  style={{ width: '48%' }}
-                  className={`bg-sky-700 hover:bg-sky-600 text-white flex items-center justify-center px-2 truncate transition-opacity duration-150 cursor-pointer ${
-                    selectedItem.category === 'reward' ? 'opacity-100' : 'opacity-75 hover:opacity-95'
+                  style={{ width: '48%', boxSizing: 'border-box', minWidth: 0 }}
+                  className={`bg-sky-700 text-white flex items-center justify-center px-1 sm:px-2 h-full text-[11px] sm:text-xs font-mono font-bold transition-opacity duration-150 cursor-pointer ${
+                    isSegmentHighlighted('reward') ? 'opacity-100' : 'opacity-75 hover:opacity-95'
                   }`}
                 >
-                  48% Gambar Hadiah
+                  <span className="sm:hidden truncate">48% Hadiah</span>
+                  <span className="hidden sm:inline truncate">48% Gambar Hadiah</span>
                 </button>
                 <button
                   type="button"
-                  onMouseEnter={() => setActiveSymbol('SCATTER')}
-                  onFocus={() => setActiveSymbol('SCATTER')}
+                  onMouseEnter={() => setHoveredSegment('special')}
+                  onFocus={() => setHoveredSegment('special')}
+                  onMouseLeave={() => setHoveredSegment(null)}
+                  onBlur={() => setHoveredSegment(null)}
                   onClick={() => setActiveSymbol('SCATTER')}
-                  style={{ width: '10%' }}
-                  className={`bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center px-1 truncate transition-opacity duration-150 cursor-pointer ${
-                    selectedItem.category === 'special' ? 'opacity-100' : 'opacity-75 hover:opacity-95'
+                  style={{ width: '10%', boxSizing: 'border-box', minWidth: 0 }}
+                  className={`bg-amber-500 text-slate-950 flex items-center justify-center px-0.5 sm:px-1 h-full text-[11px] sm:text-xs font-mono font-bold transition-opacity duration-150 cursor-pointer ${
+                    isSegmentHighlighted('special') ? 'opacity-100' : 'opacity-75 hover:opacity-95'
                   }`}
                 >
-                  10%
+                  <span className="truncate">10%</span>
                 </button>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-                <span>42 kartu bernilai 0 koin · 48 kartu hadiah (perlu 8+ gambar sama) · 10 kartu spesial (Wild, Pengali, Bonus)</span>
+                <span className="leading-relaxed">
+                  42 kartu bernilai 0 koin · 48 kartu hadiah (perlu 8+ gambar sama) · 10 kartu
+                  spesial (Wild, Pengali, Bonus)
+                </span>
               </div>
             </div>
 
@@ -398,17 +443,17 @@ export function LandingPage({
             <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-2.5">
               {SYMBOL_PREVIEW.map((item) => {
                 const isSpecial = item.category === 'special';
-                const isSelected = activeSymbol === item.symbol;
+                const isHighlighted = isTileHighlighted(item);
                 return (
                   <button
                     key={item.symbol}
                     type="button"
-                    aria-pressed={isSelected}
+                    aria-pressed={isHighlighted}
                     onMouseEnter={() => setActiveSymbol(item.symbol)}
                     onFocus={() => setActiveSymbol(item.symbol)}
                     onClick={() => setActiveSymbol(item.symbol)}
                     className={`group rounded-xl border p-3 flex flex-col items-center text-center gap-1.5 cursor-pointer transition-all duration-150 focus-visible:outline-2 focus-visible:outline-sky-600 ${
-                      isSelected
+                      isHighlighted
                         ? item.isZonk
                           ? 'bg-rose-50/80 border-rose-400 ring-2 ring-rose-500/20 -translate-y-1 shadow-md'
                           : isSpecial
@@ -423,7 +468,7 @@ export function LandingPage({
                   >
                     <div
                       className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-transform duration-150 group-hover:scale-110 ${
-                        isSelected ? 'bg-white border-slate-300 scale-105' : 'bg-slate-50 border-slate-200/80'
+                        isHighlighted ? 'bg-white border-slate-300 scale-105' : 'bg-slate-50 border-slate-200/80'
                       }`}
                     >
                       <SymbolGlyph
@@ -455,26 +500,72 @@ export function LandingPage({
               aria-live="polite"
               className="rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-3.5 flex flex-col sm:flex-row sm:items-center gap-3 transition-colors duration-150"
             >
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shadow-2xs">
-                  <SymbolGlyph
-                    symbol={selectedItem.symbol}
-                    multiplierValue={selectedItem.symbol === 'MULTIPLIER' ? 5 : undefined}
-                    size={24}
-                  />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-slate-900">
-                    {selectedItem.name}
+              {hoveredSegment ? (
+                (() => {
+                  const group = SYMBOL_PREVIEW.filter((item) => item.category === hoveredSegment);
+                  const summary = CATEGORY_SUMMARY[hoveredSegment];
+                  return (
+                    <>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="flex items-center gap-1">
+                          {group.map((item) => (
+                            <div
+                              key={item.symbol}
+                              className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shadow-2xs"
+                            >
+                              <SymbolGlyph
+                                symbol={item.symbol}
+                                multiplierValue={item.symbol === 'MULTIPLIER' ? 5 : undefined}
+                                size={22}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-slate-900">{summary.label}</div>
+                          <div className="text-xs font-mono tabular-nums text-sky-800 font-semibold">
+                            {summary.cards} · {summary.share}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-xs sm:text-sm text-slate-700 leading-relaxed sm:border-l sm:border-slate-200 sm:pl-4 space-y-1">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] sm:text-xs">
+                          {group.map((item) => (
+                            <span key={item.symbol} className="text-slate-600">
+                              <span className="font-bold text-slate-900">{item.name}</span>{' '}
+                              {item.share}
+                            </span>
+                          ))}
+                        </div>
+                        <p>{summary.detail}</p>
+                      </div>
+                    </>
+                  );
+                })()
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center shadow-2xs">
+                      <SymbolGlyph
+                        symbol={selectedItem.symbol}
+                        multiplierValue={selectedItem.symbol === 'MULTIPLIER' ? 5 : undefined}
+                        size={24}
+                      />
+                    </div>
+                    <div>
+                      <div className="text-sm font-bold text-slate-900">
+                        {selectedItem.name}
+                      </div>
+                      <div className="text-xs font-mono tabular-nums text-sky-800 font-semibold">
+                        Jatah {selectedItem.share} · {selectedItem.note}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-xs font-mono tabular-nums text-sky-800 font-semibold">
-                    Jatah {selectedItem.share} · {selectedItem.note}
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed sm:border-l sm:border-slate-200 sm:pl-4">
-                {selectedItem.detail}
-              </p>
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed sm:border-l sm:border-slate-200 sm:pl-4">
+                    {selectedItem.detail}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
